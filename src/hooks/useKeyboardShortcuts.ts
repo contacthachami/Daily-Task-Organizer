@@ -6,13 +6,22 @@ interface ShortcutAction {
   ctrlKey?: boolean;
   altKey?: boolean;
   shiftKey?: boolean;
-  action: () => void;
+  action: (event?: KeyboardEvent) => void;
   description: string;
 }
 
 export function useKeyboardShortcuts(shortcuts: ShortcutAction[]) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Skip if user is typing in an input field
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true') {
+        // Only allow Escape key when in input fields
+        if (event.key !== 'Escape') {
+          return;
+        }
+      }
+
       for (const shortcut of shortcuts) {
         const keyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase();
         const ctrlMatch = !!shortcut.ctrlKey === event.ctrlKey;
@@ -21,7 +30,7 @@ export function useKeyboardShortcuts(shortcuts: ShortcutAction[]) {
 
         if (keyMatch && ctrlMatch && altMatch && shiftMatch) {
           event.preventDefault();
-          shortcut.action();
+          shortcut.action(event);
           break;
         }
       }

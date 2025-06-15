@@ -82,9 +82,13 @@ const Index = () => {
     {
       key: 'f',
       ctrlKey: true,
-      action: () => {
+      action: (e) => {
+        e?.preventDefault();
         console.log('Keyboard shortcut: Focusing search');
-        document.getElementById('search-input')?.focus();
+        const searchInput = document.getElementById('search-input') || document.querySelector('input[placeholder*="Search"]');
+        if (searchInput) {
+          (searchInput as HTMLInputElement).focus();
+        }
       },
       description: 'Focus search'
     },
@@ -465,9 +469,15 @@ const Index = () => {
         >
           <div className="bg-white/40 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-glass max-w-2xl mx-auto">
             <p className="text-sm text-gray-600 leading-relaxed mb-4 font-light">
-              Built with React, TypeScript, and Tailwind CSS featuring advanced productivity tools.
-              <br />
-              All data is stored locally in your browser with optional cloud sync.
+              All rights reserved for{' '}
+              <a 
+                href="https://www.linkedin.com/in/contact-hachami/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+              >
+                EL MEHDI HACHAMI
+              </a>
             </p>
             <div className="flex justify-center gap-4 text-xs text-gray-500">
               <span>Press ? for keyboard shortcuts</span>

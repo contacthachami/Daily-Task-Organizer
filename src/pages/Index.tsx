@@ -5,6 +5,7 @@ import {
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
+  DragOverlay,
   closestCorners,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';

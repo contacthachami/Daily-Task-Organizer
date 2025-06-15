@@ -1,89 +1,44 @@
 
-import { useEffect } from 'react';
-import { useLocalStorage } from './useLocalStorage';
+import { useEffect, useState } from 'react';
 
-export interface NotificationSettings {
-  enabled: boolean;
-  reminders: boolean;
-  achievements: boolean;
-  pomodoroBreaks: boolean;
+interface NotificationOptions {
+  body?: string;
+  icon?: string;
+  tag?: string;
+  requireInteraction?: boolean;
 }
 
 export function useNotifications() {
-  const [settings, setSettings] = useLocalStorage<NotificationSettings>('notification-settings', {
-    enabled: false,
-    reminders: true,
-    achievements: true,
-    pomodoroBreaks: true
-  });
-
-  const [permission, setPermission] = useLocalStorage<NotificationPermission>('notification-permission', 'default');
+  const [permission, setPermission] = useState<NotificationPermission>('default');
 
   useEffect(() => {
     if ('Notification' in window) {
       setPermission(Notification.permission);
     }
-  }, [setPermission]);
+  }, []);
 
   const requestPermission = async () => {
     if ('Notification' in window) {
       const result = await Notification.requestPermission();
       setPermission(result);
-      return result === 'granted';
+      return result;
     }
-    return false;
+    return 'denied';
   };
 
-  const showNotification = (title: string, options?: NotificationOptions) => {
-    if (settings.enabled && permission === 'granted' && 'Notification' in window) {
+  const showNotification = (title: string, options: NotificationOptions = {}) => {
+    if (permission === 'granted' && 'Notification' in window) {
       new Notification(title, {
         icon: '/favicon.ico',
-        badge: '/favicon.ico',
         ...options
       });
     }
   };
 
-  const showAchievementNotification = (title: string, description: string) => {
-    if (settings.achievements) {
-      showNotification(`🏆 Achievement Unlocked: ${title}`, {
-        body: description,
-        tag: 'achievement'
-      });
-    }
-  };
-
-  const showReminderNotification = (taskTitle: string) => {
-    if (settings.reminders) {
-      showNotification('📋 Task Reminder', {
-        body: `Don't forget: ${taskTitle}`,
-        tag: 'reminder'
-      });
-    }
-  };
-
-  const showPomodoroNotification = (phase: string) => {
-    if (settings.pomodoroBreaks) {
-      const messages = {
-        work: '🍅 Time to work! Stay focused.',
-        break: '☕ Take a short break!',
-        longBreak: '🌟 Time for a longer break!'
-      };
-      showNotification('Pomodoro Timer', {
-        body: messages[phase as keyof typeof messages] || 'Timer finished!',
-        tag: 'pomodoro'
-      });
-    }
-  };
-
   return {
-    settings,
-    setSettings,
     permission,
     requestPermission,
     showNotification,
-    showAchievementNotification,
-    showReminderNotification,
-    showPomodoroNotification
+    isSupported: 'Notification' in window
   };
 }

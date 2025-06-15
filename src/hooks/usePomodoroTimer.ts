@@ -1,56 +1,45 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
-export interface PomodoroSettings {
-  workDuration: number; // minutes
-  breakDuration: number; // minutes
-  longBreakDuration: number; // minutes
+export type PomodoroPhase = 'work' | 'break' | 'longBreak';
+
+interface PomodoroSettings {
+  workDuration: number; // in minutes
+  breakDuration: number;
+  longBreakDuration: number;
   sessionsUntilLongBreak: number;
-  autoStartBreaks: boolean;
-  autoStartWork: boolean;
 }
 
-export type PomodoroPhase = 'work' | 'break' | 'longBreak' | 'paused';
+const DEFAULT_SETTINGS: PomodoroSettings = {
+  workDuration: 25,
+  breakDuration: 5,
+  longBreakDuration: 15,
+  sessionsUntilLongBreak: 4
+};
 
 export function usePomodoroTimer() {
-  const [settings, setSettings] = useLocalStorage<PomodoroSettings>('pomodoro-settings', {
-    workDuration: 25,
-    breakDuration: 5,
-    longBreakDuration: 15,
-    sessionsUntilLongBreak: 4,
-    autoStartBreaks: false,
-    autoStartWork: false
-  });
-
-  const [isActive, setIsActive] = useState(false);
+  const [settings] = useLocalStorage<PomodoroSettings>('pomodoro-settings', DEFAULT_SETTINGS);
   const [timeLeft, setTimeLeft] = useState(settings.workDuration * 60);
+  const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<PomodoroPhase>('work');
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
     if (isActive && timeLeft > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            handlePhaseComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
+      interval = setInterval(() => {
+        setTimeLeft(time => time - 1);
       }, 1000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+    } else if (timeLeft === 0) {
+      // Phase completed
+      setIsActive(false);
+      handlePhaseComplete();
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (interval) clearInterval(interval);
     };
   }, [isActive, timeLeft]);
 
@@ -59,57 +48,59 @@ export function usePomodoroTimer() {
       const newSessionsCompleted = sessionsCompleted + 1;
       setSessionsCompleted(newSessionsCompleted);
       
-      const isLongBreakTime = newSessionsCompleted % settings.sessionsUntilLongBreak === 0;
-      const nextPhase = isLongBreakTime ? 'longBreak' : 'break';
-      const nextDuration = isLongBreakTime ? settings.longBreakDuration : settings.breakDuration;
-      
-      setPhase(nextPhase);
-      setTimeLeft(nextDuration * 60);
-      setIsActive(settings.autoStartBreaks);
+      if (newSessionsCompleted % settings.sessionsUntilLongBreak === 0) {
+        setPhase('longBreak');
+        setTimeLeft(settings.longBreakDuration * 60);
+      } else {
+        setPhase('break');
+        setTimeLeft(settings.breakDuration * 60);
+      }
     } else {
       setPhase('work');
       setTimeLeft(settings.workDuration * 60);
-      setIsActive(settings.autoStartWork);
     }
   };
 
-  const startTimer = () => setIsActive(true);
-  const pauseTimer = () => setIsActive(false);
-  const resetTimer = () => {
+  const startTimer = useCallback(() => setIsActive(true), []);
+  const pauseTimer = useCallback(() => setIsActive(false), []);
+  
+  const resetTimer = useCallback(() => {
     setIsActive(false);
-    setTimeLeft(settings.workDuration * 60);
     setPhase('work');
-  };
+    setTimeLeft(settings.workDuration * 60);
+  }, [settings.workDuration]);
 
-  const skipPhase = () => {
+  const skipPhase = useCallback(() => {
+    setIsActive(false);
     handlePhaseComplete();
-  };
+  }, [phase, sessionsCompleted, settings]);
 
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  const formatTime = useCallback(() => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }, [timeLeft]);
+
+  const progress = useCallback(() => {
+    const totalTime = phase === 'work' 
+      ? settings.workDuration * 60
+      : phase === 'longBreak'
+      ? settings.longBreakDuration * 60
+      : settings.breakDuration * 60;
+    
+    return ((totalTime - timeLeft) / totalTime) * 100;
+  }, [phase, timeLeft, settings]);
 
   return {
-    settings,
-    setSettings,
-    isActive,
     timeLeft,
+    isActive,
     phase,
     sessionsCompleted,
     startTimer,
     pauseTimer,
     resetTimer,
     skipPhase,
-    formatTime: () => formatTime(timeLeft),
-    progress: () => {
-      const totalTime = phase === 'work' 
-        ? settings.workDuration * 60
-        : phase === 'longBreak' 
-          ? settings.longBreakDuration * 60 
-          : settings.breakDuration * 60;
-      return ((totalTime - timeLeft) / totalTime) * 100;
-    }
+    formatTime,
+    progress
   };
 }

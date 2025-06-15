@@ -3,7 +3,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Keyboard, X } from 'lucide-react';
 import { Button } from './ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
 interface KeyboardShortcutsProps {
   isOpen: boolean;
@@ -30,6 +30,9 @@ export function KeyboardShortcuts({ isOpen, onClose }: KeyboardShortcutsProps) {
             <Keyboard className="h-5 w-5" />
             Keyboard Shortcuts
           </DialogTitle>
+          <DialogDescription>
+            Learn keyboard shortcuts to boost your productivity and navigate the app faster.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-3">

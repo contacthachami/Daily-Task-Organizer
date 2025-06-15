@@ -48,6 +48,10 @@ const Index = () => {
   const pomodoroTimer = usePomodoroTimer();
   const notifications = useNotifications();
 
+  console.log('Rendering Index with tasks:', tasks.length);
+  console.log('Focus settings:', focusSettings);
+  console.log('Filtered tasks:', filteredTasks.length);
+
   // Group filtered tasks by time block
   const tasksByTimeBlock = {
     morning: filteredTasks.filter(task => task.timeBlock === 'morning'),
@@ -60,18 +64,25 @@ const Index = () => {
     {
       key: 'n',
       ctrlKey: true,
-      action: () => setIsFormOpen(true),
+      action: () => {
+        console.log('Keyboard shortcut: Creating new task');
+        setIsFormOpen(true);
+      },
       description: 'Create new task'
     },
     {
       key: 'f',
       ctrlKey: true,
-      action: () => document.getElementById('search-input')?.focus(),
+      action: () => {
+        console.log('Keyboard shortcut: Focusing search');
+        document.getElementById('search-input')?.focus();
+      },
       description: 'Focus search'
     },
     {
       key: 'Escape',
       action: () => {
+        console.log('Keyboard shortcut: Closing modals');
         setIsFormOpen(false);
         setShowSettings(false);
         setShowShortcuts(false);
@@ -81,18 +92,25 @@ const Index = () => {
     {
       key: 't',
       ctrlKey: true,
-      action: toggleFocusMode,
+      action: () => {
+        console.log('Keyboard shortcut: Toggling focus mode');
+        toggleFocusMode();
+      },
       description: 'Toggle focus mode'
     },
     {
       key: '?',
       shiftKey: true,
-      action: () => setShowShortcuts(true),
+      action: () => {
+        console.log('Keyboard shortcut: Showing shortcuts');
+        setShowShortcuts(true);
+      },
       description: 'Show keyboard shortcuts'
     }
   ]);
 
   const handleDragStart = (event: DragStartEvent) => {
+    console.log('Drag start:', event.active.id);
     const task = tasks.find(t => t.id === event.active.id);
     setActiveTask(task || null);
   };
@@ -104,16 +122,20 @@ const Index = () => {
     const activeTask = tasks.find(t => t.id === active.id);
     if (!activeTask) return;
 
+    console.log('Drag over:', { activeId: active.id, overId: over.id });
+
     // Check if we're dropping over a time block
     if (['morning', 'afternoon', 'evening'].includes(over.id as string)) {
       const newTimeBlock = over.id as Task['timeBlock'];
       if (activeTask.timeBlock !== newTimeBlock) {
+        console.log('Moving task to new time block:', newTimeBlock);
         moveTask(activeTask.id, newTimeBlock);
       }
     }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    console.log('Drag end:', event);
     setActiveTask(null);
     
     const { active, over } = event;
@@ -137,6 +159,7 @@ const Index = () => {
   };
 
   const handleAddTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+    console.log('Adding new task:', taskData);
     addTask(taskData);
     toast({
       title: "✨ Task added successfully!",
@@ -145,6 +168,7 @@ const Index = () => {
   };
 
   const handleUpdateTask = (id: string, updates: Partial<Task>) => {
+    console.log('Updating task:', id, updates);
     const task = tasks.find(t => t.id === id);
     updateTask(id, updates);
     
@@ -164,6 +188,7 @@ const Index = () => {
   };
 
   const handleDeleteTask = (id: string) => {
+    console.log('Deleting task:', id);
     const task = tasks.find(t => t.id === id);
     deleteTask(id);
     toast({
@@ -174,11 +199,13 @@ const Index = () => {
   };
 
   const handleEditTask = (task: Task) => {
+    console.log('Editing task:', task);
     setEditingTask(task);
     setIsFormOpen(true);
   };
 
   const handleCloseForm = () => {
+    console.log('Closing form');
     setIsFormOpen(false);
     setEditingTask(null);
   };
@@ -221,7 +248,10 @@ const Index = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button 
-                onClick={() => setIsFormOpen(true)}
+                onClick={() => {
+                  console.log('Add task button clicked');
+                  setIsFormOpen(true);
+                }}
                 size="lg"
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4 text-lg font-semibold rounded-xl font-display relative overflow-hidden group"
               >
@@ -234,7 +264,10 @@ const Index = () => {
             <Button
               variant="outline"
               size="lg"
-              onClick={() => setShowSettings(true)}
+              onClick={() => {
+                console.log('Settings button clicked');
+                setShowSettings(true);
+              }}
               className="bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/90 px-6 py-4 rounded-xl font-display"
             >
               <Settings className="mr-2 h-5 w-5" />
@@ -244,7 +277,10 @@ const Index = () => {
             <Button
               variant={focusSettings.enabled ? "default" : "outline"}
               size="lg"
-              onClick={toggleFocusMode}
+              onClick={() => {
+                console.log('Focus mode button clicked');
+                toggleFocusMode();
+              }}
               className={`px-6 py-4 rounded-xl font-display ${
                 focusSettings.enabled 
                   ? "bg-orange-500 hover:bg-orange-600 text-white" 
@@ -269,13 +305,19 @@ const Index = () => {
               <div className="flex-1 w-full md:w-auto">
                 <SearchBar
                   value={filters.search}
-                  onChange={(search) => setFilters(prev => ({ ...prev, search }))}
+                  onChange={(search) => {
+                    console.log('Search changed:', search);
+                    setFilters(prev => ({ ...prev, search }));
+                  }}
                   placeholder="Search tasks..."
                 />
               </div>
               <FilterPanel
                 filters={filters}
-                onFiltersChange={setFilters}
+                onFiltersChange={(newFilters) => {
+                  console.log('Filters changed:', newFilters);
+                  setFilters(newFilters);
+                }}
                 hasActiveFilters={hasActiveFilters}
               />
             </div>
@@ -401,7 +443,10 @@ const Index = () => {
         {/* Keyboard Shortcuts Modal */}
         <KeyboardShortcuts
           isOpen={showShortcuts}
-          onClose={() => setShowShortcuts(false)}
+          onClose={() => {
+            console.log('Closing shortcuts modal');
+            setShowShortcuts(false);
+          }}
         />
 
         {/* Enhanced Footer */}

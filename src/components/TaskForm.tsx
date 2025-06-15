@@ -7,7 +7,7 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -69,6 +69,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, editingTask, onUpdate }: T
           <DialogTitle>
             {editingTask ? 'Edit Task' : 'Add New Task'}
           </DialogTitle>
+          <DialogDescription>
+            {editingTask 
+              ? 'Make changes to your task details below.' 
+              : 'Create a new task by filling out the form below.'}
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">

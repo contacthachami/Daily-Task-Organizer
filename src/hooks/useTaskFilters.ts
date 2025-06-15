@@ -1,31 +1,21 @@
 
 import { useMemo, useState } from 'react';
-import { Task } from '../types/task';
-
-export interface TaskFilters {
-  search: string;
-  priority: Task['priority'] | 'all';
-  timeBlock: Task['timeBlock'] | 'all';
-  completed: 'all' | 'completed' | 'pending';
-}
+import { Task, TaskFilters } from '../types/task';
 
 export function useTaskFilters(tasks: Task[]) {
   const [filters, setFilters] = useState<TaskFilters>({
     search: '',
     priority: 'all',
     timeBlock: 'all',
-    completed: 'all',
+    completed: 'all'
   });
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
       // Search filter
-      if (filters.search) {
-        const searchLower = filters.search.toLowerCase();
-        const matchesSearch = 
-          task.title.toLowerCase().includes(searchLower) ||
-          (task.description && task.description.toLowerCase().includes(searchLower));
-        if (!matchesSearch) return false;
+      if (filters.search && !task.title.toLowerCase().includes(filters.search.toLowerCase()) &&
+          !task.description?.toLowerCase().includes(filters.search.toLowerCase())) {
+        return false;
       }
 
       // Priority filter
@@ -38,7 +28,7 @@ export function useTaskFilters(tasks: Task[]) {
         return false;
       }
 
-      // Completion status filter
+      // Completed filter
       if (filters.completed === 'completed' && !task.completed) {
         return false;
       }
@@ -50,13 +40,15 @@ export function useTaskFilters(tasks: Task[]) {
     });
   }, [tasks, filters]);
 
+  const hasActiveFilters = filters.search !== '' || 
+                          filters.priority !== 'all' || 
+                          filters.timeBlock !== 'all' || 
+                          filters.completed !== 'all';
+
   return {
     filters,
     setFilters,
     filteredTasks,
-    hasActiveFilters: filters.search !== '' || 
-                    filters.priority !== 'all' || 
-                    filters.timeBlock !== 'all' || 
-                    filters.completed !== 'all'
+    hasActiveFilters
   };
 }

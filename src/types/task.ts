@@ -25,3 +25,20 @@ export interface TaskStats {
     evening: { total: number; completed: number };
   };
 }
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlockedAt?: Date;
+  progress: number;
+  maxProgress: number;
+}
+
+export interface TaskFilters {
+  search: string;
+  priority: Task['priority'] | 'all';
+  timeBlock: Task['timeBlock'] | 'all';
+  completed: 'all' | 'completed' | 'pending';
+}

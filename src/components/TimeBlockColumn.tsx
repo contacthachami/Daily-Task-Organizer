@@ -16,9 +16,15 @@ interface TimeBlockColumnProps {
 }
 
 const timeBlockColors = {
-  morning: 'border-blue-200 bg-blue-50',
-  afternoon: 'border-orange-200 bg-orange-50',
-  evening: 'border-purple-200 bg-purple-50',
+  morning: 'border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50',
+  afternoon: 'border-blue-300 bg-gradient-to-br from-blue-50 to-sky-50',
+  evening: 'border-purple-300 bg-gradient-to-br from-purple-50 to-indigo-50',
+};
+
+const timeBlockHoverColors = {
+  morning: 'border-amber-400 shadow-amber-200',
+  afternoon: 'border-blue-400 shadow-blue-200',
+  evening: 'border-purple-400 shadow-purple-200',
 };
 
 const timeBlockIcons = {
@@ -42,36 +48,64 @@ export function TimeBlockColumn({
   return (
     <motion.div
       layout
-      className={`flex-1 min-w-0 rounded-lg border-2 border-dashed p-4 transition-colors ${
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={`flex-1 min-w-0 rounded-xl border-2 border-dashed p-6 transition-all duration-300 ${
         timeBlockColors[timeBlock]
-      } ${isOver ? 'border-solid shadow-md' : ''}`}
+      } ${isOver ? `border-solid shadow-lg ${timeBlockHoverColors[timeBlock]}` : ''}`}
       ref={setNodeRef}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <span className="text-2xl">{timeBlockIcons[timeBlock]}</span>
-        <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
-        <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded-full">
-          {tasks.length}
-        </span>
-      </div>
+      <motion.div 
+        className="flex items-center gap-3 mb-6"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <span className="text-3xl drop-shadow-sm">{timeBlockIcons[timeBlock]}</span>
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-gray-800 mb-1">{title}</h2>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600 bg-white/70 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20 shadow-sm">
+              {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+            </span>
+            <span className="text-xs text-gray-500">
+              {tasks.filter(t => t.completed).length} completed
+            </span>
+          </div>
+        </div>
+      </motion.div>
       
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-3">
-          {tasks.map((task) => (
-            <TaskCard
+        <div className="space-y-4">
+          {tasks.map((task, index) => (
+            <motion.div
               key={task.id}
-              task={task}
-              onUpdate={onUpdateTask}
-              onDelete={onDeleteTask}
-              onEdit={onEditTask}
-            />
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <TaskCard
+                task={task}
+                onUpdate={onUpdateTask}
+                onDelete={onDeleteTask}
+                onEdit={onEditTask}
+              />
+            </motion.div>
           ))}
           
           {tasks.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-sm">No tasks scheduled</p>
-              <p className="text-xs mt-1">Drag tasks here or add new ones</p>
-            </div>
+            <motion.div 
+              className="text-center py-12 text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-white/30">
+                <p className="text-sm font-medium mb-2">No tasks scheduled</p>
+                <p className="text-xs">Drag tasks here or add new ones</p>
+              </div>
+            </motion.div>
           )}
         </div>
       </SortableContext>

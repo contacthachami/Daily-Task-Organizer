@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext,
   DragEndEvent,
   DragOverEvent,
-  DragOverlay,
   DragStartEvent,
   closestCorners,
 } from '@dnd-kit/core';
@@ -170,12 +168,18 @@ const Index = () => {
   const handleUpdateTask = (id: string, updates: Partial<Task>) => {
     console.log('Updating task:', id, updates);
     const task = tasks.find(t => t.id === id);
+    
+    if (!task) {
+      console.error('Task not found:', id);
+      return;
+    }
+
     updateTask(id, updates);
     
     if (updates.completed !== undefined) {
       toast({
         title: updates.completed ? "🎉 Task completed!" : "📝 Task marked incomplete",
-        description: task ? `"${task.title}" status updated.` : "Task status updated.",
+        description: `"${task.title}" status updated.`,
       });
 
       if (updates.completed && task) {
@@ -190,10 +194,16 @@ const Index = () => {
   const handleDeleteTask = (id: string) => {
     console.log('Deleting task:', id);
     const task = tasks.find(t => t.id === id);
+    
+    if (!task) {
+      console.error('Task not found for deletion:', id);
+      return;
+    }
+
     deleteTask(id);
     toast({
       title: "🗑️ Task deleted",
-      description: task ? `"${task.title}" has been removed.` : "Task has been removed.",
+      description: `"${task.title}" has been removed.`,
       variant: "destructive",
     });
   };

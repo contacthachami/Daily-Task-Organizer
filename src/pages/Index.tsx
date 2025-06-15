@@ -29,7 +29,7 @@ import { AchievementNotification } from '../components/AchievementNotification';
 import { KeyboardShortcuts } from '../components/KeyboardShortcuts';
 import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
-import { Plus, Settings, Target, Search, Filter, Sparkles } from 'lucide-react';
+import { Plus, Target, Search, Filter, Sparkles } from 'lucide-react';
 
 const Index = () => {
   const { tasks, addTask, updateTask, deleteTask, moveTask, stats } = useTasks();
@@ -37,7 +37,6 @@ const Index = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   // Advanced features
@@ -51,11 +50,22 @@ const Index = () => {
   console.log('Focus settings:', focusSettings);
   console.log('Filtered tasks:', filteredTasks.length);
 
-  // Group filtered tasks by time block
+  // Apply focus mode filtering to the already filtered tasks
+  const finalFilteredTasks = React.useMemo(() => {
+    if (!focusSettings.enabled) return filteredTasks;
+    
+    return filteredTasks.filter(task => {
+      if (focusSettings.hideCompleted && task.completed) return false;
+      if (focusSettings.hideLowPriority && task.priority === 'could-do') return false;
+      return true;
+    });
+  }, [filteredTasks, focusSettings]);
+
+  // Group final filtered tasks by time block
   const tasksByTimeBlock = {
-    morning: filteredTasks.filter(task => task.timeBlock === 'morning'),
-    afternoon: filteredTasks.filter(task => task.timeBlock === 'afternoon'),
-    evening: filteredTasks.filter(task => task.timeBlock === 'evening'),
+    morning: finalFilteredTasks.filter(task => task.timeBlock === 'morning'),
+    afternoon: finalFilteredTasks.filter(task => task.timeBlock === 'afternoon'),
+    evening: finalFilteredTasks.filter(task => task.timeBlock === 'evening'),
   };
 
   // Keyboard shortcuts
@@ -83,7 +93,6 @@ const Index = () => {
       action: () => {
         console.log('Keyboard shortcut: Closing modals');
         setIsFormOpen(false);
-        setShowSettings(false);
         setShowShortcuts(false);
       },
       description: 'Close modals'
@@ -255,7 +264,7 @@ const Index = () => {
             and intelligent focus tools designed for modern professionals.
           </p>
           
-          {/* Action buttons */}
+          {/* Action buttons - removed settings button */}
           <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button 
@@ -271,19 +280,6 @@ const Index = () => {
                 Add New Task
               </Button>
             </motion.div>
-            
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => {
-                console.log('Settings button clicked');
-                setShowSettings(true);
-              }}
-              className="bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/90 px-6 py-4 rounded-xl font-display"
-            >
-              <Settings className="mr-2 h-5 w-5" />
-              Settings
-            </Button>
             
             <Button
               variant={focusSettings.enabled ? "default" : "outline"}

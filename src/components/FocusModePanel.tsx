@@ -9,6 +9,23 @@ import { useFocusMode } from '../hooks/useFocusMode';
 export function FocusModePanel() {
   const { focusSettings, updateFocusSettings } = useFocusMode();
 
+  console.log('FocusModePanel - Current settings:', focusSettings);
+
+  const handleHideCompletedChange = (checked: boolean) => {
+    console.log('Hide completed changed:', checked);
+    updateFocusSettings({ hideCompleted: checked });
+  };
+
+  const handleHideLowPriorityChange = (checked: boolean) => {
+    console.log('Hide low priority changed:', checked);
+    updateFocusSettings({ hideLowPriority: checked });
+  };
+
+  const handleDimNonFocusChange = (checked: boolean) => {
+    console.log('Dim non-focus changed:', checked);
+    updateFocusSettings({ dimNonFocus: checked });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -34,9 +51,7 @@ export function FocusModePanel() {
           </div>
           <Switch
             checked={focusSettings.hideCompleted}
-            onCheckedChange={(checked) => 
-              updateFocusSettings({ hideCompleted: checked })
-            }
+            onCheckedChange={handleHideCompletedChange}
           />
         </div>
 
@@ -47,9 +62,7 @@ export function FocusModePanel() {
           </div>
           <Switch
             checked={focusSettings.hideLowPriority}
-            onCheckedChange={(checked) => 
-              updateFocusSettings({ hideLowPriority: checked })
-            }
+            onCheckedChange={handleHideLowPriorityChange}
           />
         </div>
 
@@ -60,9 +73,7 @@ export function FocusModePanel() {
           </div>
           <Switch
             checked={focusSettings.dimNonFocus}
-            onCheckedChange={(checked) => 
-              updateFocusSettings({ dimNonFocus: checked })
-            }
+            onCheckedChange={handleDimNonFocusChange}
           />
         </div>
       </div>

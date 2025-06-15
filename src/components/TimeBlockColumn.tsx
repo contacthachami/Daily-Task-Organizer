@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useDroppable } from '@dnd-kit/core';
@@ -47,20 +48,15 @@ export function TimeBlockColumn({
     id: timeBlock,
   });
 
-  // Filter tasks based on focus settings
-  const filteredTasks = React.useMemo(() => {
-    if (!focusSettings?.enabled) return tasks;
-    
-    return tasks.filter(task => {
-      if (focusSettings.hideCompleted && task.completed) return false;
-      if (focusSettings.hideLowPriority && task.priority === 'could-do') return false;
-      return true;
-    });
-  }, [tasks, focusSettings]);
+  console.log(`TimeBlockColumn ${timeBlock} - Tasks:`, tasks.length, 'Focus settings:', focusSettings);
+
+  // The tasks are already filtered in the parent component (Index.tsx)
+  // So we just use them directly here
+  const displayedTasks = tasks;
 
   const shouldDimColumn = focusSettings?.enabled && focusSettings.dimNonFocus && 
     focusSettings.focusPriority && 
-    !filteredTasks.some(t => t.priority === focusSettings.focusPriority);
+    !displayedTasks.some(t => t.priority === focusSettings.focusPriority);
 
   return (
     <motion.div
@@ -86,18 +82,18 @@ export function TimeBlockColumn({
           <h2 className="text-xl font-bold text-gray-800 mb-1">{title}</h2>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600 bg-white/70 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20 shadow-sm">
-              {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+              {displayedTasks.length} {displayedTasks.length === 1 ? 'task' : 'tasks'}
             </span>
             <span className="text-xs text-gray-500">
-              {tasks.filter(t => t.completed).length} completed
+              {displayedTasks.filter(t => t.completed).length} completed
             </span>
           </div>
         </div>
       </motion.div>
       
-      <SortableContext items={filteredTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext items={displayedTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-4">
-          {filteredTasks.map((task, index) => (
+          {displayedTasks.map((task, index) => (
             <motion.div
               key={task.id}
               initial={{ opacity: 0, y: 10 }}
@@ -116,7 +112,7 @@ export function TimeBlockColumn({
             </motion.div>
           ))}
           
-          {filteredTasks.length === 0 && (
+          {displayedTasks.length === 0 && (
             <motion.div 
               className="text-center py-12 text-gray-500"
               initial={{ opacity: 0 }}

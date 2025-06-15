@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DndContext,
   DragEndEvent,
@@ -8,32 +7,41 @@ import {
   DragStartEvent,
   DragOverlay,
   closestCorners,
-} from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
-import { useTasks } from '../hooks/useTasks';
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
-import { useTaskFilters } from '../hooks/useTaskFilters';
-import { useAchievements } from '../hooks/useAchievements';
-import { useFocusMode } from '../hooks/useFocusMode';
-import { usePomodoroTimer } from '../hooks/usePomodoroTimer';
-import { useNotifications } from '../hooks/useNotifications';
-import { Task } from '../types/task';
-import { TaskCard } from '../components/TaskCard';
-import { TaskForm } from '../components/TaskForm';
-import { TimeBlockColumn } from '../components/TimeBlockColumn';
-import { ProgressDashboard } from '../components/ProgressDashboard';
-import { SearchBar } from '../components/SearchBar';
-import { FilterPanel } from '../components/FilterPanel';
-import { FocusModePanel } from '../components/FocusModePanel';
-import { PomodoroWidget } from '../components/PomodoroWidget';
-import { AchievementNotification } from '../components/AchievementNotification';
-import { KeyboardShortcuts } from '../components/KeyboardShortcuts';
-import { Button } from '../components/ui/button';
-import { useToast } from '../hooks/use-toast';
-import { Plus, Target, Search, Filter, Sparkles, RotateCcw } from 'lucide-react';
+} from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+import { useTasks } from "../hooks/useTasks";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { useTaskFilters } from "../hooks/useTaskFilters";
+import { useAchievements } from "../hooks/useAchievements";
+import { useFocusMode } from "../hooks/useFocusMode";
+import { usePomodoroTimer } from "../hooks/usePomodoroTimer";
+import { useNotifications } from "../hooks/useNotifications";
+import { Task } from "../types/task";
+import { TaskCard } from "../components/TaskCard";
+import { TaskForm } from "../components/TaskForm";
+import { TimeBlockColumn } from "../components/TimeBlockColumn";
+import { ProgressDashboard } from "../components/ProgressDashboard";
+import { SearchBar } from "../components/SearchBar";
+import { FilterPanel } from "../components/FilterPanel";
+import { FocusModePanel } from "../components/FocusModePanel";
+import { PomodoroWidget } from "../components/PomodoroWidget";
+import { AchievementNotification } from "../components/AchievementNotification";
+import { KeyboardShortcuts } from "../components/KeyboardShortcuts";
+import { Button } from "../components/ui/button";
+import { useToast } from "../hooks/use-toast";
+import {
+  Plus,
+  Target,
+  Search,
+  Filter,
+  Sparkles,
+  RotateCcw,
+  Linkedin,
+} from "lucide-react";
 
 const Index = () => {
-  const { tasks, addTask, updateTask, deleteTask, moveTask, stats } = useTasks();
+  const { tasks, addTask, updateTask, deleteTask, moveTask, stats } =
+    useTasks();
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -41,90 +49,96 @@ const Index = () => {
   const [showShortcuts, setShowShortcuts] = useState(false);
 
   // Advanced features
-  const { filters, setFilters, filteredTasks, hasActiveFilters } = useTaskFilters(tasks);
+  const { filters, setFilters, filteredTasks, hasActiveFilters } =
+    useTaskFilters(tasks);
   const { achievements, newAchievements } = useAchievements(tasks, stats);
   const { focusSettings, toggleFocusMode } = useFocusMode();
   const pomodoroTimer = usePomodoroTimer();
   const notifications = useNotifications();
 
-  console.log('Rendering Index with tasks:', tasks.length);
-  console.log('Focus settings:', focusSettings);
-  console.log('Filtered tasks:', filteredTasks.length);
+  console.log("Rendering Index with tasks:", tasks.length);
+  console.log("Focus settings:", focusSettings);
+  console.log("Filtered tasks:", filteredTasks.length);
 
   // Apply focus mode filtering to the already filtered tasks
   const finalFilteredTasks = React.useMemo(() => {
     if (!focusSettings.enabled) return filteredTasks;
-    
-    return filteredTasks.filter(task => {
+
+    return filteredTasks.filter((task) => {
       if (focusSettings.hideCompleted && task.completed) return false;
-      if (focusSettings.hideLowPriority && task.priority === 'could-do') return false;
+      if (focusSettings.hideLowPriority && task.priority === "could-do")
+        return false;
       return true;
     });
   }, [filteredTasks, focusSettings]);
 
   // Group final filtered tasks by time block
   const tasksByTimeBlock = {
-    morning: finalFilteredTasks.filter(task => task.timeBlock === 'morning'),
-    afternoon: finalFilteredTasks.filter(task => task.timeBlock === 'afternoon'),
-    evening: finalFilteredTasks.filter(task => task.timeBlock === 'evening'),
+    morning: finalFilteredTasks.filter((task) => task.timeBlock === "morning"),
+    afternoon: finalFilteredTasks.filter(
+      (task) => task.timeBlock === "afternoon"
+    ),
+    evening: finalFilteredTasks.filter((task) => task.timeBlock === "evening"),
   };
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
     {
-      key: 'n',
+      key: "n",
       ctrlKey: true,
       action: () => {
-        console.log('Keyboard shortcut: Creating new task');
+        console.log("Keyboard shortcut: Creating new task");
         setIsFormOpen(true);
       },
-      description: 'Create new task'
+      description: "Create new task",
     },
     {
-      key: 'f',
+      key: "f",
       ctrlKey: true,
       action: (e) => {
         e?.preventDefault();
-        console.log('Keyboard shortcut: Focusing search');
-        const searchInput = document.getElementById('search-input') || document.querySelector('input[placeholder*="Search"]');
+        console.log("Keyboard shortcut: Focusing search");
+        const searchInput =
+          document.getElementById("search-input") ||
+          document.querySelector('input[placeholder*="Search"]');
         if (searchInput) {
           (searchInput as HTMLInputElement).focus();
         }
       },
-      description: 'Focus search'
+      description: "Focus search",
     },
     {
-      key: 'Escape',
+      key: "Escape",
       action: () => {
-        console.log('Keyboard shortcut: Closing modals');
+        console.log("Keyboard shortcut: Closing modals");
         setIsFormOpen(false);
         setShowShortcuts(false);
       },
-      description: 'Close modals'
+      description: "Close modals",
     },
     {
-      key: 't',
+      key: "t",
       ctrlKey: true,
       action: () => {
-        console.log('Keyboard shortcut: Toggling focus mode');
+        console.log("Keyboard shortcut: Toggling focus mode");
         toggleFocusMode();
       },
-      description: 'Toggle focus mode'
+      description: "Toggle focus mode",
     },
     {
-      key: '?',
+      key: "?",
       shiftKey: true,
       action: () => {
-        console.log('Keyboard shortcut: Showing shortcuts');
+        console.log("Keyboard shortcut: Showing shortcuts");
         setShowShortcuts(true);
       },
-      description: 'Show keyboard shortcuts'
-    }
+      description: "Show keyboard shortcuts",
+    },
   ]);
 
   const handleDragStart = (event: DragStartEvent) => {
-    console.log('Drag start:', event.active.id);
-    const task = tasks.find(t => t.id === event.active.id);
+    console.log("Drag start:", event.active.id);
+    const task = tasks.find((t) => t.id === event.active.id);
     setActiveTask(task || null);
   };
 
@@ -132,47 +146,51 @@ const Index = () => {
     const { active, over } = event;
     if (!over) return;
 
-    const activeTask = tasks.find(t => t.id === active.id);
+    const activeTask = tasks.find((t) => t.id === active.id);
     if (!activeTask) return;
 
-    console.log('Drag over:', { activeId: active.id, overId: over.id });
+    console.log("Drag over:", { activeId: active.id, overId: over.id });
 
     // Check if we're dropping over a time block
-    if (['morning', 'afternoon', 'evening'].includes(over.id as string)) {
-      const newTimeBlock = over.id as Task['timeBlock'];
+    if (["morning", "afternoon", "evening"].includes(over.id as string)) {
+      const newTimeBlock = over.id as Task["timeBlock"];
       if (activeTask.timeBlock !== newTimeBlock) {
-        console.log('Moving task to new time block:', newTimeBlock);
+        console.log("Moving task to new time block:", newTimeBlock);
         moveTask(activeTask.id, newTimeBlock);
       }
     }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    console.log('Drag end:', event);
+    console.log("Drag end:", event);
     setActiveTask(null);
-    
+
     const { active, over } = event;
     if (!over) return;
 
     // Handle reordering within the same container
     if (active.id !== over.id) {
-      const activeTask = tasks.find(t => t.id === active.id);
-      const overTask = tasks.find(t => t.id === over.id);
-      
-      if (activeTask && overTask && activeTask.timeBlock === overTask.timeBlock) {
+      const activeTask = tasks.find((t) => t.id === active.id);
+      const overTask = tasks.find((t) => t.id === over.id);
+
+      if (
+        activeTask &&
+        overTask &&
+        activeTask.timeBlock === overTask.timeBlock
+      ) {
         const timeBlockTasks = tasksByTimeBlock[activeTask.timeBlock];
-        const oldIndex = timeBlockTasks.findIndex(t => t.id === active.id);
-        const newIndex = timeBlockTasks.findIndex(t => t.id === over.id);
-        
+        const oldIndex = timeBlockTasks.findIndex((t) => t.id === active.id);
+        const newIndex = timeBlockTasks.findIndex((t) => t.id === over.id);
+
         if (oldIndex !== newIndex) {
-          console.log('Reordering tasks within time block');
+          console.log("Reordering tasks within time block");
         }
       }
     }
   };
 
-  const handleAddTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
-    console.log('Adding new task:', taskData);
+  const handleAddTask = (taskData: Omit<Task, "id" | "createdAt">) => {
+    console.log("Adding new task:", taskData);
     addTask(taskData);
     toast({
       title: "✨ Task added successfully!",
@@ -181,37 +199,39 @@ const Index = () => {
   };
 
   const handleUpdateTask = (id: string, updates: Partial<Task>) => {
-    console.log('Updating task:', id, updates);
-    const task = tasks.find(t => t.id === id);
-    
+    console.log("Updating task:", id, updates);
+    const task = tasks.find((t) => t.id === id);
+
     if (!task) {
-      console.error('Task not found:', id);
+      console.error("Task not found:", id);
       return;
     }
 
     updateTask(id, updates);
-    
+
     if (updates.completed !== undefined) {
       toast({
-        title: updates.completed ? "🎉 Task completed!" : "📝 Task marked incomplete",
+        title: updates.completed
+          ? "🎉 Task completed!"
+          : "📝 Task marked incomplete",
         description: `"${task.title}" status updated.`,
       });
 
       if (updates.completed && task) {
-        notifications.showNotification('🎉 Task Completed!', {
+        notifications.showNotification("🎉 Task Completed!", {
           body: `Great job completing "${task.title}"!`,
-          tag: 'task-completion'
+          tag: "task-completion",
         });
       }
     }
   };
 
   const handleDeleteTask = (id: string) => {
-    console.log('Deleting task:', id);
-    const task = tasks.find(t => t.id === id);
-    
+    console.log("Deleting task:", id);
+    const task = tasks.find((t) => t.id === id);
+
     if (!task) {
-      console.error('Task not found for deletion:', id);
+      console.error("Task not found for deletion:", id);
       return;
     }
 
@@ -224,39 +244,40 @@ const Index = () => {
   };
 
   const handleEditTask = (task: Task) => {
-    console.log('Editing task:', task);
+    console.log("Editing task:", task);
     setEditingTask(task);
     setIsFormOpen(true);
   };
 
   const handleCloseForm = () => {
-    console.log('Closing form');
+    console.log("Closing form");
     setIsFormOpen(false);
     setEditingTask(null);
   };
 
   const handleResetLocalStorage = () => {
-    console.log('Resetting local storage');
-    
+    console.log("Resetting local storage");
+
     // Clear all localStorage keys used by the app
     const keysToRemove = [
-      'daily-tasks',
-      'focus-mode',
-      'unlocked-achievements',
-      'pomodoro-settings',
-      'task-filters'
+      "daily-tasks",
+      "focus-mode",
+      "unlocked-achievements",
+      "pomodoro-settings",
+      "task-filters",
     ];
-    
-    keysToRemove.forEach(key => {
+
+    keysToRemove.forEach((key) => {
       localStorage.removeItem(key);
     });
-    
+
     // Reload the page to reset all state
     window.location.reload();
-    
+
     toast({
       title: "🔄 Local storage cleared",
-      description: "All data has been reset. The page will refresh automatically.",
+      description:
+        "All data has been reset. The page will refresh automatically.",
     });
   };
 
@@ -267,7 +288,7 @@ const Index = () => {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
       <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-gradient-to-r from-pink-400 to-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-2000"></div>
-      
+
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 relative z-10">
         {/* Enhanced Header - Mobile Optimized */}
         <motion.div
@@ -283,23 +304,30 @@ const Index = () => {
             className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-white/30 shadow-glass mb-4 sm:mb-8"
           >
             <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 animate-pulse" />
-            <span className="text-xs sm:text-sm font-medium text-gray-700 font-display">Strategic Task Management</span>
+            <span className="text-xs sm:text-sm font-medium text-gray-700 font-display">
+              Strategic Task Management
+            </span>
           </motion.div>
-          
+
           <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-display bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-3 sm:mb-6 leading-tight px-2">
             Daily Task Organizer
           </h1>
           <p className="text-base sm:text-xl text-gray-600 mb-4 sm:mb-8 max-w-3xl mx-auto leading-relaxed font-light px-4">
-            Transform your productivity with strategic time-blocking, priority management, 
-            and intelligent focus tools designed for modern professionals.
+            Transform your productivity with strategic time-blocking, priority
+            management, and intelligent focus tools designed for modern
+            professionals.
           </p>
-          
+
           {/* Action buttons - Mobile Optimized */}
           <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-8 px-4">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-              <Button 
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full sm:w-auto"
+            >
+              <Button
                 onClick={() => {
-                  console.log('Add task button clicked');
+                  console.log("Add task button clicked");
                   setIsFormOpen(true);
                 }}
                 size="lg"
@@ -310,24 +338,28 @@ const Index = () => {
                 Add New Task
               </Button>
             </motion.div>
-            
+
             <div className="flex gap-3 w-full sm:w-auto">
               <Button
                 variant={focusSettings.enabled ? "default" : "outline"}
                 size="lg"
                 onClick={() => {
-                  console.log('Focus mode button clicked');
+                  console.log("Focus mode button clicked");
                   toggleFocusMode();
                 }}
                 className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-display ${
-                  focusSettings.enabled 
-                    ? "bg-orange-500 hover:bg-orange-600 text-white" 
+                  focusSettings.enabled
+                    ? "bg-orange-500 hover:bg-orange-600 text-white"
                     : "bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/90"
                 }`}
               >
                 <Target className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="hidden sm:inline">{focusSettings.enabled ? 'Exit Focus' : 'Focus Mode'}</span>
-                <span className="sm:hidden">{focusSettings.enabled ? 'Exit' : 'Focus'}</span>
+                <span className="hidden sm:inline">
+                  {focusSettings.enabled ? "Exit Focus" : "Focus Mode"}
+                </span>
+                <span className="sm:hidden">
+                  {focusSettings.enabled ? "Exit" : "Focus"}
+                </span>
               </Button>
 
               <Button
@@ -357,8 +389,8 @@ const Index = () => {
                 <SearchBar
                   value={filters.search}
                   onChange={(search) => {
-                    console.log('Search changed:', search);
-                    setFilters(prev => ({ ...prev, search }));
+                    console.log("Search changed:", search);
+                    setFilters((prev) => ({ ...prev, search }));
                   }}
                   placeholder="Search tasks..."
                 />
@@ -367,7 +399,7 @@ const Index = () => {
                 <FilterPanel
                   filters={filters}
                   onFiltersChange={(newFilters) => {
-                    console.log('Filters changed:', newFilters);
+                    console.log("Filters changed:", newFilters);
                     setFilters(newFilters);
                   }}
                   hasActiveFilters={hasActiveFilters}
@@ -388,7 +420,7 @@ const Index = () => {
           <div className="lg:col-span-2">
             <ProgressDashboard stats={stats} achievements={achievements} />
           </div>
-          
+
           {/* Pomodoro Timer */}
           <div>
             <PomodoroWidget timer={pomodoroTimer} />
@@ -400,7 +432,7 @@ const Index = () => {
           {focusSettings.enabled && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className="mb-4 sm:mb-8"
             >
@@ -431,7 +463,7 @@ const Index = () => {
                 onEditTask={handleEditTask}
                 focusSettings={focusSettings}
               />
-              
+
               <TimeBlockColumn
                 timeBlock="afternoon"
                 title="Afternoon"
@@ -441,7 +473,7 @@ const Index = () => {
                 onEditTask={handleEditTask}
                 focusSettings={focusSettings}
               />
-              
+
               <div className="md:col-span-2 lg:col-span-1">
                 <TimeBlockColumn
                   timeBlock="evening"
@@ -457,7 +489,7 @@ const Index = () => {
 
             <DragOverlay>
               {activeTask ? (
-                <motion.div 
+                <motion.div
                   className="rotate-6 opacity-90 scale-105"
                   initial={{ scale: 0.9 }}
                   animate={{ scale: 1.05 }}
@@ -499,7 +531,7 @@ const Index = () => {
         <KeyboardShortcuts
           isOpen={showShortcuts}
           onClose={() => {
-            console.log('Closing shortcuts modal');
+            console.log("Closing shortcuts modal");
             setShowShortcuts(false);
           }}
         />
@@ -513,14 +545,21 @@ const Index = () => {
         >
           <div className="bg-white/40 backdrop-blur-md rounded-2xl p-4 sm:p-8 border border-white/30 shadow-glass max-w-2xl mx-auto">
             <p className="text-sm text-gray-600 leading-relaxed mb-4 font-light">
-              All rights reserved for{' '}
-              <a 
-                href="https://www.linkedin.com/in/contact-hachami/" 
-                target="_blank" 
+              All rights reserved for{" "}
+              <a
+                href="https://www.linkedin.com/in/contact-hachami/"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+                aria-label="EL MEHDI HACHAMI LinkedIn (opens in new tab)"
+                className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
               >
-                EL MEHDI HACHAMI
+                <Linkedin
+                  className="w-5 h-5 transition-transform duration-200 group-hover:scale-110 group-hover:text-blue-700 group-focus:scale-110 group-focus:text-blue-700"
+                  aria-hidden="true"
+                />
+                <span className="underline underline-offset-2 group-hover:decoration-2 group-hover:text-blue-700 group-focus:text-blue-700">
+                  EL MEHDI HACHAMI
+                </span>
               </a>
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs text-gray-500">

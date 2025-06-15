@@ -29,7 +29,7 @@ import { AchievementNotification } from '../components/AchievementNotification';
 import { KeyboardShortcuts } from '../components/KeyboardShortcuts';
 import { Button } from '../components/ui/button';
 import { useToast } from '../hooks/use-toast';
-import { Plus, Target, Search, Filter, Sparkles } from 'lucide-react';
+import { Plus, Target, Search, Filter, Sparkles, RotateCcw } from 'lucide-react';
 
 const Index = () => {
   const { tasks, addTask, updateTask, deleteTask, moveTask, stats } = useTasks();
@@ -234,6 +234,31 @@ const Index = () => {
     setEditingTask(null);
   };
 
+  const handleResetLocalStorage = () => {
+    console.log('Resetting local storage');
+    
+    // Clear all localStorage keys used by the app
+    const keysToRemove = [
+      'daily-tasks',
+      'focus-mode',
+      'unlocked-achievements',
+      'pomodoro-settings',
+      'task-filters'
+    ];
+    
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
+    // Reload the page to reset all state
+    window.location.reload();
+    
+    toast({
+      title: "🔄 Local storage cleared",
+      description: "All data has been reset. The page will refresh automatically.",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden font-sans">
       {/* Enhanced background decoration */}
@@ -268,7 +293,7 @@ const Index = () => {
             and intelligent focus tools designed for modern professionals.
           </p>
           
-          {/* Action buttons - removed settings button */}
+          {/* Action buttons */}
           <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button 
@@ -300,6 +325,16 @@ const Index = () => {
             >
               <Target className="mr-2 h-5 w-5" />
               {focusSettings.enabled ? 'Exit Focus' : 'Focus Mode'}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleResetLocalStorage}
+              className="px-6 py-4 rounded-xl font-display bg-white/80 backdrop-blur-md border-white/30 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+            >
+              <RotateCcw className="mr-2 h-5 w-5" />
+              Reset Data
             </Button>
           </div>
         </motion.div>

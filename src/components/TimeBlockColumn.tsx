@@ -64,7 +64,7 @@ export function TimeBlockColumn({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`flex-1 min-w-0 rounded-xl border-2 border-dashed p-6 transition-all duration-300 ${
+      className={`flex-1 min-w-0 rounded-xl border-2 border-dashed p-3 sm:p-4 lg:p-6 transition-all duration-300 ${
         timeBlockColors[timeBlock]
       } ${isOver ? `border-solid shadow-lg ${timeBlockHoverColors[timeBlock]}` : ''} ${
         shouldDimColumn ? 'opacity-40' : ''
@@ -72,16 +72,16 @@ export function TimeBlockColumn({
       ref={setNodeRef}
     >
       <motion.div 
-        className="flex items-center gap-3 mb-6"
+        className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <span className="text-3xl drop-shadow-sm">{timeBlockIcons[timeBlock]}</span>
+        <span className="text-2xl sm:text-3xl drop-shadow-sm">{timeBlockIcons[timeBlock]}</span>
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-gray-800 mb-1">{title}</h2>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 bg-white/70 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20 shadow-sm">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-1">{title}</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+            <span className="text-xs sm:text-sm text-gray-600 bg-white/70 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full border border-white/20 shadow-sm">
               {displayedTasks.length} {displayedTasks.length === 1 ? 'task' : 'tasks'}
             </span>
             <span className="text-xs text-gray-500">
@@ -92,7 +92,7 @@ export function TimeBlockColumn({
       </motion.div>
       
       <SortableContext items={displayedTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {displayedTasks.map((task, index) => (
             <motion.div
               key={task.id}
@@ -114,12 +114,12 @@ export function TimeBlockColumn({
           
           {displayedTasks.length === 0 && (
             <motion.div 
-              className="text-center py-12 text-gray-500"
+              className="text-center py-8 sm:py-12 text-gray-500"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-white/30">
+              <div className="bg-white/50 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/30">
                 <p className="text-sm font-medium mb-2">
                   {focusSettings?.enabled ? 'No tasks match focus criteria' : 'No tasks scheduled'}
                 </p>

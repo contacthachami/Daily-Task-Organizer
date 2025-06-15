@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -267,88 +268,92 @@ const Index = () => {
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
       <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-gradient-to-r from-pink-400 to-red-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-2000"></div>
       
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        {/* Enhanced Header */}
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 relative z-10">
+        {/* Enhanced Header - Mobile Optimized */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-center mb-12"
+          className="text-center mb-6 sm:mb-12"
         >
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 shadow-glass mb-8"
+            className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-white/30 shadow-glass mb-4 sm:mb-8"
           >
-            <Sparkles className="w-5 h-5 text-blue-500 animate-pulse" />
-            <span className="text-sm font-medium text-gray-700 font-display">Strategic Task Management</span>
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 animate-pulse" />
+            <span className="text-xs sm:text-sm font-medium text-gray-700 font-display">Strategic Task Management</span>
           </motion.div>
           
-          <h1 className="text-6xl md:text-7xl font-bold font-display bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-display bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-3 sm:mb-6 leading-tight px-2">
             Daily Task Organizer
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed font-light">
+          <p className="text-base sm:text-xl text-gray-600 mb-4 sm:mb-8 max-w-3xl mx-auto leading-relaxed font-light px-4">
             Transform your productivity with strategic time-blocking, priority management, 
             and intelligent focus tools designed for modern professionals.
           </p>
           
-          {/* Action buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          {/* Action buttons - Mobile Optimized */}
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-8 px-4">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
               <Button 
                 onClick={() => {
                   console.log('Add task button clicked');
                   setIsFormOpen(true);
                 }}
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-4 text-lg font-semibold rounded-xl font-display relative overflow-hidden group"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-xl font-display relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
-                <Plus className="mr-2 h-5 w-5" />
+                <Plus className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Add New Task
               </Button>
             </motion.div>
             
-            <Button
-              variant={focusSettings.enabled ? "default" : "outline"}
-              size="lg"
-              onClick={() => {
-                console.log('Focus mode button clicked');
-                toggleFocusMode();
-              }}
-              className={`px-6 py-4 rounded-xl font-display ${
-                focusSettings.enabled 
-                  ? "bg-orange-500 hover:bg-orange-600 text-white" 
-                  : "bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/90"
-              }`}
-            >
-              <Target className="mr-2 h-5 w-5" />
-              {focusSettings.enabled ? 'Exit Focus' : 'Focus Mode'}
-            </Button>
+            <div className="flex gap-3 w-full sm:w-auto">
+              <Button
+                variant={focusSettings.enabled ? "default" : "outline"}
+                size="lg"
+                onClick={() => {
+                  console.log('Focus mode button clicked');
+                  toggleFocusMode();
+                }}
+                className={`flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-display ${
+                  focusSettings.enabled 
+                    ? "bg-orange-500 hover:bg-orange-600 text-white" 
+                    : "bg-white/80 backdrop-blur-md border-white/30 hover:bg-white/90"
+                }`}
+              >
+                <Target className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="hidden sm:inline">{focusSettings.enabled ? 'Exit Focus' : 'Focus Mode'}</span>
+                <span className="sm:hidden">{focusSettings.enabled ? 'Exit' : 'Focus'}</span>
+              </Button>
 
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={handleResetLocalStorage}
-              className="px-6 py-4 rounded-xl font-display bg-white/80 backdrop-blur-md border-white/30 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
-            >
-              <RotateCcw className="mr-2 h-5 w-5" />
-              Reset Data
-            </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleResetLocalStorage}
+                className="flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-display bg-white/80 backdrop-blur-md border-white/30 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors"
+              >
+                <RotateCcw className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="hidden sm:inline">Reset Data</span>
+                <span className="sm:hidden">Reset</span>
+              </Button>
+            </div>
           </div>
         </motion.div>
 
-        {/* Search and Filter Bar */}
+        {/* Search and Filter Bar - Mobile Optimized */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="mb-8"
+          className="mb-4 sm:mb-8"
         >
-          <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/30 shadow-glass p-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-1 w-full md:w-auto">
+          <div className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/30 shadow-glass p-4 sm:p-6">
+            <div className="flex flex-col gap-3 sm:gap-4 items-center">
+              <div className="w-full">
                 <SearchBar
                   value={filters.search}
                   onChange={(search) => {
@@ -358,24 +363,26 @@ const Index = () => {
                   placeholder="Search tasks..."
                 />
               </div>
-              <FilterPanel
-                filters={filters}
-                onFiltersChange={(newFilters) => {
-                  console.log('Filters changed:', newFilters);
-                  setFilters(newFilters);
-                }}
-                hasActiveFilters={hasActiveFilters}
-              />
+              <div className="w-full sm:w-auto">
+                <FilterPanel
+                  filters={filters}
+                  onFiltersChange={(newFilters) => {
+                    console.log('Filters changed:', newFilters);
+                    setFilters(newFilters);
+                  }}
+                  hasActiveFilters={hasActiveFilters}
+                />
+              </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Widgets Row */}
+        {/* Widgets Row - Mobile Optimized */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-8"
         >
           {/* Progress Dashboard */}
           <div className="lg:col-span-2">
@@ -395,14 +402,14 @@ const Index = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-8"
+              className="mb-4 sm:mb-8"
             >
               <FocusModePanel />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Task Columns */}
+        {/* Task Columns - Mobile Optimized */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -414,7 +421,7 @@ const Index = () => {
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
               <TimeBlockColumn
                 timeBlock="morning"
                 title="Morning"
@@ -435,15 +442,17 @@ const Index = () => {
                 focusSettings={focusSettings}
               />
               
-              <TimeBlockColumn
-                timeBlock="evening"
-                title="Evening"
-                tasks={tasksByTimeBlock.evening}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-                onEditTask={handleEditTask}
-                focusSettings={focusSettings}
-              />
+              <div className="md:col-span-2 lg:col-span-1">
+                <TimeBlockColumn
+                  timeBlock="evening"
+                  title="Evening"
+                  tasks={tasksByTimeBlock.evening}
+                  onUpdateTask={handleUpdateTask}
+                  onDeleteTask={handleDeleteTask}
+                  onEditTask={handleEditTask}
+                  focusSettings={focusSettings}
+                />
+              </div>
             </div>
 
             <DragOverlay>
@@ -495,14 +504,14 @@ const Index = () => {
           }}
         />
 
-        {/* Enhanced Footer */}
+        {/* Enhanced Footer - Mobile Optimized */}
         <motion.footer
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.6 }}
-          className="text-center mt-20 py-12"
+          className="text-center mt-12 sm:mt-20 py-8 sm:py-12"
         >
-          <div className="bg-white/40 backdrop-blur-md rounded-2xl p-8 border border-white/30 shadow-glass max-w-2xl mx-auto">
+          <div className="bg-white/40 backdrop-blur-md rounded-2xl p-4 sm:p-8 border border-white/30 shadow-glass max-w-2xl mx-auto">
             <p className="text-sm text-gray-600 leading-relaxed mb-4 font-light">
               All rights reserved for{' '}
               <a 
@@ -514,11 +523,11 @@ const Index = () => {
                 EL MEHDI HACHAMI
               </a>
             </p>
-            <div className="flex justify-center gap-4 text-xs text-gray-500">
+            <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs text-gray-500">
               <span>Press ? for keyboard shortcuts</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>Ctrl+N for new task</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>Ctrl+F to search</span>
             </div>
           </div>

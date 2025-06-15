@@ -1,163 +1,132 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { TaskStats } from '../types/task';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Achievement } from '../hooks/useAchievements';
+import { TrendingUp, Target, Clock, Award, Trophy } from 'lucide-react';
 import { Progress } from './ui/progress';
+import { Badge } from './ui/badge';
 
 interface ProgressDashboardProps {
   stats: TaskStats;
+  achievements?: Achievement[];
 }
 
-const PRIORITY_COLORS = {
-  'must-do': '#EF4444',
-  'should-do': '#F59E0B',
-  'could-do': '#10B981',
-};
-
-const TIME_BLOCK_COLORS = {
-  morning: '#3B82F6',
-  afternoon: '#F97316',
-  evening: '#8B5CF6',
-};
-
-export function ProgressDashboard({ stats }: ProgressDashboardProps) {
-  const priorityData = Object.entries(stats.byPriority).map(([priority, data]) => ({
-    name: priority.replace('-', ' ').toUpperCase(),
-    completed: data.completed,
-    total: data.total,
-    remaining: data.total - data.completed,
-    fill: PRIORITY_COLORS[priority as keyof typeof PRIORITY_COLORS],
-  }));
-
-  const timeBlockData = Object.entries(stats.byTimeBlock).map(([timeBlock, data]) => ({
-    name: timeBlock.charAt(0).toUpperCase() + timeBlock.slice(1),
-    completed: data.completed,
-    total: data.total,
-    completionRate: data.total > 0 ? (data.completed / data.total) * 100 : 0,
-    fill: TIME_BLOCK_COLORS[timeBlock as keyof typeof TIME_BLOCK_COLORS],
-  }));
-
-  const overallCompletionData = [
-    { name: 'Completed', value: stats.completed, fill: '#10B981' },
-    { name: 'Remaining', value: stats.total - stats.completed, fill: '#E5E7EB' },
-  ];
+export function ProgressDashboard({ stats, achievements = [] }: ProgressDashboardProps) {
+  const unlockedAchievements = achievements.filter(a => a.unlocked);
+  const recentAchievements = unlockedAchievements.slice(-3);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      {/* Overall Progress */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Today's Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center mb-4">
-            <div className="text-3xl font-bold text-gray-900">
-              {Math.round(stats.completionRate)}%
-            </div>
-            <div className="text-sm text-gray-600">
-              {stats.completed} of {stats.total} tasks completed
-            </div>
-          </div>
-          
-          <Progress value={stats.completionRate} className="mb-4" />
-          
-          <div className="h-32">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={overallCompletionData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={25}
-                  outerRadius={50}
-                  dataKey="value"
-                  startAngle={90}
-                  endAngle={-270}
-                >
-                  {overallCompletionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-white/60 backdrop-blur-md rounded-2xl border border-white/30 shadow-glass p-6"
+    >
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-blue-100 rounded-lg">
+          <TrendingUp className="h-5 w-5 text-blue-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-gray-800 font-display">Progress Dashboard</h2>
+          <p className="text-sm text-gray-600">Track your productivity and achievements</p>
+        </div>
+      </div>
 
-      {/* Priority Breakdown */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">By Priority</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {priorityData.map((item) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: item.fill }}
-                  />
-                  <span className="text-sm font-medium">{item.name}</span>
-                </div>
-                <div className="text-sm text-gray-600">
-                  {item.completed}/{item.total}
-                </div>
-              </motion.div>
-            ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Overall Progress */}
+        <div className="space-y-4">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-blue-600 mb-1">
+              {stats.completionRate.toFixed(0)}%
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Overall Completion</p>
+            <Progress value={stats.completionRate} className="h-2" />
           </div>
-          
-          <div className="h-32 mt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={priorityData}>
-                <XAxis dataKey="name" hide />
-                <YAxis hide />
-                <Tooltip />
-                <Bar dataKey="completed" fill="#10B981" />
-                <Bar dataKey="remaining" fill="#E5E7EB" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Time Block Breakdown */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">By Time Block</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {timeBlockData.map((item) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.name}</span>
-                  <span className="text-sm text-gray-600">
-                    {item.completed}/{item.total}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <div className="text-lg font-bold text-green-600">{stats.completed}</div>
+              <div className="text-xs text-green-700">Completed</div>
+            </div>
+            <div className="text-center p-3 bg-orange-50 rounded-lg">
+              <div className="text-lg font-bold text-orange-600">{stats.total - stats.completed}</div>
+              <div className="text-xs text-orange-700">Remaining</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Time Block Progress */}
+        <div className="space-y-3">
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Time Blocks
+          </h3>
+          
+          {Object.entries(stats.byTimeBlock).map(([block, data]) => {
+            const rate = data.total > 0 ? (data.completed / data.total) * 100 : 0;
+            const icons = { morning: '🌅', afternoon: '☀️', evening: '🌙' };
+            
+            return (
+              <div key={block} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium capitalize flex items-center gap-2">
+                    <span>{icons[block as keyof typeof icons]}</span>
+                    {block}
+                  </span>
+                  <span className="text-xs text-gray-600">
+                    {data.completed}/{data.total}
                   </span>
                 </div>
-                <Progress 
-                  value={item.completionRate}
-                  className="h-2"
-                />
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                <Progress value={rate} className="h-1.5" />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Achievements */}
+        <div className="space-y-3">
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+            <Trophy className="h-4 w-4" />
+            Recent Achievements
+          </h3>
+          
+          {recentAchievements.length > 0 ? (
+            <div className="space-y-2">
+              {recentAchievements.map((achievement) => (
+                <motion.div
+                  key={achievement.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-3 p-2 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200"
+                >
+                  <span className="text-lg">{achievement.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-gray-800 truncate">
+                      {achievement.title}
+                    </p>
+                    <p className="text-xs text-gray-600 truncate">
+                      {achievement.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+              
+              <div className="text-center pt-2">
+                <Badge variant="secondary" className="text-xs">
+                  <Award className="h-3 w-3 mr-1" />
+                  {unlockedAchievements.length} / {achievements.length} Unlocked
+                </Badge>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4 text-gray-500">
+              <Award className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-xs">Complete tasks to unlock achievements!</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
   );
 }

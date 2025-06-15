@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Task } from '../types/task';
 import { TaskCard } from './TaskCard';
+import { FocusSettings } from '../hooks/useFocusMode';
 
 interface TimeBlockColumnProps {
   timeBlock: Task['timeBlock'];
@@ -13,6 +13,7 @@ interface TimeBlockColumnProps {
   onUpdateTask: (id: string, updates: Partial<Task>) => void;
   onDeleteTask: (id: string) => void;
   onEditTask: (task: Task) => void;
+  focusSettings?: FocusSettings;
 }
 
 const timeBlockColors = {
@@ -39,11 +40,27 @@ export function TimeBlockColumn({
   tasks, 
   onUpdateTask, 
   onDeleteTask, 
-  onEditTask 
+  onEditTask,
+  focusSettings 
 }: TimeBlockColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: timeBlock,
   });
+
+  // Filter tasks based on focus settings
+  const filteredTasks = React.useMemo(() => {
+    if (!focusSettings?.enabled) return tasks;
+    
+    return tasks.filter(task => {
+      if (focusSettings.hideCompleted && task.completed) return false;
+      if (focusSettings.hideLowPriority && task.priority === 'could-do') return false;
+      return true;
+    });
+  }, [tasks, focusSettings]);
+
+  const shouldDimColumn = focusSettings?.enabled && focusSettings.dimNonFocus && 
+    focusSettings.focusPriority && 
+    !filteredTasks.some(t => t.priority === focusSettings.focusPriority);
 
   return (
     <motion.div
@@ -53,7 +70,9 @@ export function TimeBlockColumn({
       transition={{ duration: 0.3 }}
       className={`flex-1 min-w-0 rounded-xl border-2 border-dashed p-6 transition-all duration-300 ${
         timeBlockColors[timeBlock]
-      } ${isOver ? `border-solid shadow-lg ${timeBlockHoverColors[timeBlock]}` : ''}`}
+      } ${isOver ? `border-solid shadow-lg ${timeBlockHoverColors[timeBlock]}` : ''} ${
+        shouldDimColumn ? 'opacity-40' : ''
+      }`}
       ref={setNodeRef}
     >
       <motion.div 
@@ -76,14 +95,17 @@ export function TimeBlockColumn({
         </div>
       </motion.div>
       
-      <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext items={filteredTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-4">
-          {tasks.map((task, index) => (
+          {filteredTasks.map((task, index) => (
             <motion.div
               key={task.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
+              className={focusSettings?.enabled && focusSettings.dimNonFocus && 
+                focusSettings.focusPriority && 
+                task.priority !== focusSettings.focusPriority ? 'opacity-50' : ''}
             >
               <TaskCard
                 task={task}
@@ -94,7 +116,7 @@ export function TimeBlockColumn({
             </motion.div>
           ))}
           
-          {tasks.length === 0 && (
+          {filteredTasks.length === 0 && (
             <motion.div 
               className="text-center py-12 text-gray-500"
               initial={{ opacity: 0 }}
@@ -102,8 +124,12 @@ export function TimeBlockColumn({
               transition={{ delay: 0.2 }}
             >
               <div className="bg-white/50 backdrop-blur-sm rounded-lg p-6 border border-white/30">
-                <p className="text-sm font-medium mb-2">No tasks scheduled</p>
-                <p className="text-xs">Drag tasks here or add new ones</p>
+                <p className="text-sm font-medium mb-2">
+                  {focusSettings?.enabled ? 'No tasks match focus criteria' : 'No tasks scheduled'}
+                </p>
+                <p className="text-xs">
+                  {focusSettings?.enabled ? 'Adjust focus settings or add new tasks' : 'Drag tasks here or add new ones'}
+                </p>
               </div>
             </motion.div>
           )}
